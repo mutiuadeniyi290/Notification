@@ -1,13 +1,9 @@
-
-name: Build and Deploy Docker Image
-
+name: CI/CD Pipeline
 
 on:
   push:
     branches:
-      - main
-  pull_request:
-    branches:
+        
       - master
 
 jobs:
@@ -18,9 +14,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Generate random version number
-      run: ./generate.sh  
-
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
@@ -30,12 +23,16 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
+    - name: Get version number
+      id: get_version
+      run: echo "VERSION=$(git describe --tags --abbrev=2)" >> $GITHUB_ENV
+
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
       with:
         context: .
         push: true
-        tags: ${{ secrets.DOCKER_USERNAME }}/simple-nginx-server:latest,${{ secrets.DOCKER_USERNAME }}/simple-nginx-server:${{ env.VERSION }}
+        tags: ${{ secrets.DOCKER_USERNAME }}/my-html-project:latest,${{ secrets.DOCKER_USERNAME }}/my-html-project:${{ env.VERSION }}
 
     - name: Send email notification
       uses: dawidd6/action-send-mail@v3
@@ -48,73 +45,15 @@ jobs:
         body: |
           The build for commit ${{ github.sha }} on branch ${{ github.ref }} has ${{ status }}.
           Docker image: ${{ secrets.DOCKER_USERNAME }}/my-html-project:latest
-        to: mutiuadeniyi5@gmail.com
+          Docker image version: ${{ env.VERSION }}
+        to: recipient@example.com
         from: sender@example.com
-        secure: true 
+        secure: true
 
     - name: Notify success
       if: success()
-      run: |
-      
-        echo "Build succeeded!"
-         Version: ${{ env.VERSION }}
-
-        
+      run: echo "Build succeeded!"
 
     - name: Notify failure
       if: failure()
       run: echo "Build failed!"
-
-
-
-
-
-
-# name: Build and Deploy Docker Image
-
-# on:
-#   push:
-#     branches:
-#       - master
-
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#     - name: Checkout code
-#       uses: actions/checkout@v2
-
-#     - name: Generate random version number
-#       run: ./generate.sh  
-
-#     - name: Set up Docker Buildx
-#       uses: docker/setup-buildx-action@v1
-
-#     - name: Login to Docker Hub
-#       uses: docker/login-action@v1
-#       with:
-#         username: ${{ secrets.DOCKER_USERNAME }}
-#         password: ${{ secrets.DOCKER_PASSWORD }}
-
-#     - name: Build and push Docker image
-#       uses: docker/build-push-action@v2
-#       with:
-#         context: .
-#         push: true
-#         tags: ${{ secrets.DOCKER_USERNAME }}/simple-nginx-server:latest,${{ secrets.DOCKER_USERNAME }}/simple-nginx-server:${{ env.VERSION }}
-
-#     - name: Send email notification
-#       uses: dawidd6/action-send-mail@v3
-#       with:
-#         server_address: smtp.gmail.com
-#         server_port: 465
-#         username: ${{ secrets.EMAIL_USERNAME }}
-#         password: ${{ secrets.EMAIL_PASSWORD }}
-#         subject: Build Notification
-#         body: |
-
-#            The Docker image has been built and pushed successfully.
-#            Version: ${{ env.VERSION }}
-#         to: mutiuadeniyi5@gmail.com
-#         from: mutiuadeniyi.com
