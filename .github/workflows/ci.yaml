@@ -28,3 +28,15 @@ jobs:
         context: .
         push: true
         tags: ${{ secrets.DOCKER_USERNAME }}/simple-nginx-server:latest
+
+    - name: Send email notification
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.gmail.com
+        server_port: 465
+        username: ${{ secrets.EMAIL_USERNAME }}
+        password: ${{ secrets.EMAIL_PASSWORD }}
+        subject: Build Notification
+        body: The Docker image has been built and pushed successfully.
+        to: mutiuadeniyi5@gmail.com
+        from: sender@example.com
