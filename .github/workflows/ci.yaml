@@ -30,7 +30,7 @@ jobs:
       with:
         context: .
         push: true
-        tags: ${{ secrets.DOCKER_USERNAME }}/simple-nginx-server:latest
+        tags: ${{ secrets.DOCKER_USERNAME }}/simple-nginx-server:latest,${{ secrets.DOCKER_USERNAME }}/simple-nginx-server:${{ env.VERSION }}
 
     - name: Send email notification
       uses: dawidd6/action-send-mail@v3
