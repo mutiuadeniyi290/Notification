@@ -1,5 +1,6 @@
 
-name: CI/CD Pipeline
+name: Build and Deploy Docker Image
+
 
 on:
   push:
@@ -49,15 +50,16 @@ jobs:
           Docker image: ${{ secrets.DOCKER_USERNAME }}/my-html-project:latest
         to: mutiuadeniyi5@gmail.com
         from: sender@example.com
-        secure: true
+        secure: true 
 
     - name: Notify success
       if: success()
       run: |
       
         echo "Build succeeded!"
+         Version: ${{ env.VERSION }}
 
-        Version: ${{ env.VERSION }}
+        
 
     - name: Notify failure
       if: failure()
